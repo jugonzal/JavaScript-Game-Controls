@@ -3,29 +3,36 @@
 <head>
     <meta charset="utf-8" />
     <title>JavaScript Asteroids !! (with explosions)</title>
-    <style>* { padding: 0; margin: 0; } canvas { background: #013333 url(img/background.png) no-repeat; display: block; margin: 0 auto; } #output { text-align: center; margin-top: 30px; } </style>
+    <style>* { padding: 0; margin: 0; } canvas { background: #013333 url(img/space.png) no-repeat; display: block; margin: 0 auto; } #output { text-align: center; margin-top: 30px; } </style>
 </head>
 <body>
 
-<canvas id="myCanvas" width="480" height="320"></canvas>
+<canvas id="myCanvas" width="740" height="520"></canvas>
 
 <script>
     // INIT
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d");
-    var playerHeight = 110;
+    var playerHeight = 130;
     var playerWidth = 92;
     var playerX = (canvas.width - playerWidth) / 2;
     var playerY = (canvas.height - playerHeight) / 2;
+    var asteroidX = (canvas.width / 2);
+    var asteroidY = (canvas.height / 2);
     var rightPressed = false;
     var leftPressed = false;
     var upPressed = false;
     var downPressed = false;
     var firePressed = false;
+    var explode = false;
     var img = new Image();
     img.src = "img/player.png";
     var fireImg = new Image();
     fireImg.src = "img/explosion.png";
+    var asteroid = new Image();
+    asteroid.src = "img/asteroid.png";
+    var explosion = new Image();
+    explosion.src = "img/bigexplosion.png";
 
     // KEYBOARD
     document.addEventListener("keydown", keyDownHandler, false);
@@ -56,7 +63,7 @@
                 case "KeyS":
                     downPressed = true;
                     return;
-                case "Space":
+                case "KeyF":
                     firePressed = true;
                 default:
                     return;
@@ -101,7 +108,7 @@
                 case "KeyS":
                     downPressed = false;
                     return;
-                case "Space":
+                case "KeyF":
                     firePressed = false;
                 default:
                     return;
@@ -136,26 +143,62 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // KEYBOARD
-        if(rightPressed && playerX > 480) {
+        if(rightPressed && playerX > 740) {
             playerX = -70;
         }
         if(rightPressed ) { // && playerX <= 465
             playerX += +5;
         }
-        else if(leftPressed) {
+        if(leftPressed && playerX < -140) {
+            playerX = 740;
+        }
+        if(leftPressed) {
             playerX -= 5;
+        }
+        if(upPressed && playerY < -50) {
+            playerY = 520;
+        }
+        if(downPressed && playerY > 520) {
+            playerY = -50;
         }
         if(downPressed) {
             playerY += 5;
         }
-        else if(upPressed) {
+        if(upPressed) {
             playerY -= 5;
         }
-
-        ctx.drawImage(img, playerX, playerY);
-        if (firePressed) {
-            ctx.drawImage(fireImg, playerX + 100, playerY+20);
+        if (playerY > (asteroidY - 30) && playerY < (asteroidY + 30) && playerX + 20 > (asteroidX - 20) && playerX < (asteroidX + 50)) {
+        	explode = true;
+        } else {
+        	explode = false;
         }
+        if (playerY > (asteroidY - 30) && playerY < (asteroidY + 30) && playerX + 150 > (asteroidX - 20) && playerX + 150 < (asteroidX + 50) && firePressed) {
+        	asteroidExplodes = true
+        } else {
+        	asteroidExplodes = false
+        }
+
+        if (asteroidExplodes) {
+        	ctx.drawImage(explosion, asteroidX, asteroidY);	       
+        	asteroidX = Math.floor((Math.random() * canvas.width) + 1);
+		    asteroidY = Math.floor((Math.random() * canvas.height) + 1);
+ 	
+        } else {
+	        ctx.drawImage(asteroid, asteroidX,asteroidY);
+        }
+        if (explode) {
+        	ctx.drawImage(explosion, playerX, playerY);	
+        } else {
+        	ctx.drawImage(img, playerX, playerY);
+        }
+        if (firePressed) {
+            ctx.drawImage(fireImg, playerX + 150, playerY+20);
+        }
+        // if (explode == false) {
+	        
+        // } else {
+        // 	ctx.drawImage(fireImg, 200, 200);
+        // }
         window.requestAnimationFrame(draw);
     }
     draw();
